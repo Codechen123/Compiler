@@ -164,66 +164,83 @@ Operand *translate_exp(TreeNode *exp)
 
             Operand *t1 = translate_exp(left);
             Operand *t2 = translate_exp(right);
-            Operand *result = new_operand_temp();
 
             switch (op->type)
             {
-            case NODE_PLUS:
-                emit(OP_ADD, result, t1, t2);
-                break;
-            case NODE_MINUS:
-                emit(OP_SUB, result, t1, t2);
-                break;
-            case NODE_STAR:
-                emit(OP_MUL, result, t1, t2);
-                break;
-            case NODE_DIV:
-                emit(OP_DIV, result, t1, t2);
-                break;
-            case NODE_RELOP:
-            {
-                if (strcmp(op->name, ">") == 0)
-                {
-                    emit(OP_GT, result, t1, t2);
-                }
-                else if (strcmp(op->name, "<") == 0)
-                {
-                    emit(OP_LT, result, t1, t2);
-                }
-                else if (strcmp(op->name, ">=") == 0)
-                {
-                    emit(OP_GE, result, t1, t2);
-                }
-                else if (strcmp(op->name, "<=") == 0)
-                {
-                    emit(OP_LE, result, t1, t2);
-                }
-                else if (strcmp(op->name, "==") == 0)
-                {
-                    emit(OP_EQ, result, t1, t2);
-                }
-                else if (strcmp(op->name, "!=") == 0)
-                {
-                    emit(OP_NE, result, t1, t2);
-                }
-                break;
-            }
-            case NODE_AND:
-                emit(OP_AND, result, t1, t2);
-                break;
-            case NODE_OR:
-                emit(OP_OR, result, t1, t2);
-                break;
             case NODE_ASSIGNOP:
                 emit(OP_ASSIGN, t1, t2, NULL);
                 return t1;
+            case NODE_PLUS:
+            case NODE_MINUS:
+            case NODE_STAR:
+            case NODE_DIV:
+            case NODE_RELOP:
+            case NODE_AND:
+            case NODE_OR:
             case NODE_LB: // 数组访问 exp[exp]
-                emit(OP_ARRAY_GET, result, t1, t2);
-                break;
+            {
+                Operand *result = new_operand_temp();
+
+                switch (op->type)
+                {
+                case NODE_PLUS:
+                    emit(OP_ADD, result, t1, t2);
+                    break;
+                case NODE_MINUS:
+                    emit(OP_SUB, result, t1, t2);
+                    break;
+                case NODE_STAR:
+                    emit(OP_MUL, result, t1, t2);
+                    break;
+                case NODE_DIV:
+                    emit(OP_DIV, result, t1, t2);
+                    break;
+                case NODE_RELOP:
+                {
+                    if (strcmp(op->name, ">") == 0)
+                    {
+                        emit(OP_GT, result, t1, t2);
+                    }
+                    else if (strcmp(op->name, "<") == 0)
+                    {
+                        emit(OP_LT, result, t1, t2);
+                    }
+                    else if (strcmp(op->name, ">=") == 0)
+                    {
+                        emit(OP_GE, result, t1, t2);
+                    }
+                    else if (strcmp(op->name, "<=") == 0)
+                    {
+                        emit(OP_LE, result, t1, t2);
+                    }
+                    else if (strcmp(op->name, "==") == 0)
+                    {
+                        emit(OP_EQ, result, t1, t2);
+                    }
+                    else if (strcmp(op->name, "!=") == 0)
+                    {
+                        emit(OP_NE, result, t1, t2);
+                    }
+                    break;
+                }
+                case NODE_AND:
+                    emit(OP_AND, result, t1, t2);
+                    break;
+                case NODE_OR:
+                    emit(OP_OR, result, t1, t2);
+                    break;
+                case NODE_LB: // 数组访问 exp[exp]
+                    emit(OP_ARRAY_GET, result, t1, t2);
+                    break;
+                default:
+                    break;
+                }
+                return result;
+            }
             default:
                 break;
             }
-            return result;
+            return NULL;
         }
         // 处理括号表达式
         else if (child->type == NODE_LP && child->sibling != NULL)

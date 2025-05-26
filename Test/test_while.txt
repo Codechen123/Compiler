@@ -1,0 +1,14 @@
+int main()
+{
+	int a = 3;
+	int b = 1;
+	int c = a + b;
+	while(a > 0)
+	{
+		a = a - 1;
+		c = c + 3;
+	}
+
+	b = 0;
+	return c;
+}

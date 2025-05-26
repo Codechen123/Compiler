@@ -103,14 +103,14 @@ make clean
 ### 基本用法
 
 ```bash
-./parser <source_file>
+./compiler <source_file>
 ```
 
 ### 示例
 
 ```bash
 # 编译测试文件
-./parser Test/test_params.c
+./compiler Test/test_params.c
 ```
 
 ### 输出
@@ -164,7 +164,7 @@ END FUNCTION main
 
 ```bash
 # 运行基本测试
-./parser Test/test_params.c
+./compiler Test/test_params.c
 ```
 
 测试文件包含：
@@ -200,4 +200,4 @@ END FUNCTION main
 
 ---
 
-_最后更新: 2025 年_
+_最后更新: 2024 年_

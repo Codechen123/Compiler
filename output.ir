@@ -1,0 +1,21 @@
+FUNCTION add :
+PARAM x
+PARAM y
+t1 := x + y
+RETURN t1
+END FUNCTION add
+FUNCTION multiply :
+PARAM a
+PARAM b
+PARAM c
+t2 := a * b
+t3 := t2 * c
+RETURN t3
+END FUNCTION multiply
+FUNCTION main :
+ARG #1
+ARG #2
+t4 := CALL add
+result := t4
+RETURN result
+END FUNCTION main
