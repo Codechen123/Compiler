@@ -30,6 +30,9 @@ float       {digit}+\.{digit}+
 {ws}        { /* ignore whitespace */ }
 {newline}   { yycolumn = 1; }
 
+"//".*      { /* ignore single-line comments */ }
+"/*"([^*]|\*+[^*/])*\*+"/"  { /* ignore multi-line comments */ }
+
 "int"       { 
     yylval.node = create_node(NODE_TYPE, yylineno, "int"); 
     yylval.node->value.string_value = strdup("int");

@@ -1,0 +1,177 @@
+=== Syntax Tree ===
+Program (2)
+  ExtDefList (2)
+    ExtDef (2)
+      Specifier (2)
+        TYPE: int
+      FunDec (2)
+        ID: main
+        LP
+        RP
+      CompSt (3)
+        LC
+        DefList (4)
+          Def (4)
+            Specifier (4)
+              TYPE: int
+            DecList (4)
+              Dec (4)
+                VarDec (4)
+                  ID: a
+            SEMI
+          DefList (5)
+            Def (5)
+              Specifier (5)
+                TYPE: int
+              DecList (5)
+                Dec (5)
+                  VarDec (5)
+                    ID: b
+              SEMI
+            DefList (6)
+              Def (6)
+                Specifier (6)
+                  TYPE: int
+                DecList (6)
+                  Dec (6)
+                    VarDec (6)
+                      ID: c
+                SEMI
+        StmtList (7)
+          Stmt (7)
+            Exp (7)
+              Exp (7)
+                ID: a
+              ASSIGNOP
+              Exp (7)
+                INT: 5
+            SEMI
+          StmtList (8)
+            Stmt (8)
+              Exp (8)
+                Exp (8)
+                  ID: b
+                ASSIGNOP
+                Exp (8)
+                  INT: 3
+              SEMI
+            StmtList (10)
+              Stmt (10)
+                IF
+                LP
+                Exp (10)
+                  Exp (10)
+                    Exp (10)
+                      ID: a
+                    >
+                    Exp (10)
+                      ID: b
+                  AND
+                  Exp (10)
+                    Exp (10)
+                      ID: b
+                    >
+                    Exp (10)
+                      INT: 0
+                RP
+                Stmt (11)
+                  CompSt (11)
+                    LC
+                    StmtList (12)
+                      Stmt (12)
+                        Exp (12)
+                          Exp (12)
+                            ID: c
+                          ASSIGNOP
+                          Exp (12)
+                            INT: 1
+                        SEMI
+                    RC
+                ELSE
+                Stmt (15)
+                  CompSt (15)
+                    LC
+                    StmtList (16)
+                      Stmt (16)
+                        Exp (16)
+                          Exp (16)
+                            ID: c
+                          ASSIGNOP
+                          Exp (16)
+                            INT: 0
+                        SEMI
+                    RC
+              StmtList (19)
+                Stmt (19)
+                  IF
+                  LP
+                  Exp (19)
+                    Exp (19)
+                      Exp (19)
+                        ID: a
+                      <
+                      Exp (19)
+                        INT: 0
+                    OR
+                    Exp (19)
+                      Exp (19)
+                        ID: b
+                      <
+                      Exp (19)
+                        INT: 0
+                  RP
+                  Stmt (20)
+                    CompSt (20)
+                      LC
+                      StmtList (21)
+                        Stmt (21)
+                          Exp (21)
+                            Exp (21)
+                              ID: c
+                            ASSIGNOP
+                            Exp (21)
+                              MINUS
+                              Exp (21)
+                                INT: 1
+                          SEMI
+                      RC
+                StmtList (23)
+                  Stmt (23)
+                    RETURN
+                    Exp (23)
+                      ID: c
+                    SEMI
+        RC
+
+=== Intermediate Code (Three-Address Code) ===
+FUNCTION main :
+a := #5
+b := #3
+t1 := a > b
+IF t1 GOTO label3
+GOTO label2
+label3 :
+t2 := b > #0
+IF t2 GOTO label1
+GOTO label2
+label1 :
+c := #1
+GOTO label4
+label2 :
+c := #0
+label4 :
+t3 := a < #0
+IF t3 GOTO label5
+GOTO label7
+label7 :
+t4 := b < #0
+IF t4 GOTO label5
+GOTO label6
+label5 :
+t5 := -#1
+c := t5
+label6 :
+RETURN c
+END FUNCTION main
+
+Intermediate code saved to output.ir

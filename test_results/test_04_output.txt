@@ -1,0 +1,116 @@
+=== Syntax Tree ===
+Program (2)
+  ExtDefList (2)
+    ExtDef (2)
+      Specifier (2)
+        TYPE: int
+      FunDec (2)
+        ID: main
+        LP
+        RP
+      CompSt (3)
+        LC
+        DefList (4)
+          Def (4)
+            Specifier (4)
+              TYPE: int
+            DecList (4)
+              Dec (4)
+                VarDec (4)
+                  ID: i
+            SEMI
+          DefList (5)
+            Def (5)
+              Specifier (5)
+                TYPE: int
+              DecList (5)
+                Dec (5)
+                  VarDec (5)
+                    ID: sum
+              SEMI
+        StmtList (6)
+          Stmt (6)
+            Exp (6)
+              Exp (6)
+                ID: i
+              ASSIGNOP
+              Exp (6)
+                INT: 1
+            SEMI
+          StmtList (7)
+            Stmt (7)
+              Exp (7)
+                Exp (7)
+                  ID: sum
+                ASSIGNOP
+                Exp (7)
+                  INT: 0
+              SEMI
+            StmtList (9)
+              Stmt (9)
+                WHILE
+                LP
+                Exp (9)
+                  Exp (9)
+                    ID: i
+                  <=
+                  Exp (9)
+                    INT: 5
+                RP
+                Stmt (10)
+                  CompSt (10)
+                    LC
+                    StmtList (11)
+                      Stmt (11)
+                        Exp (11)
+                          Exp (11)
+                            ID: sum
+                          ASSIGNOP
+                          Exp (11)
+                            Exp (11)
+                              ID: sum
+                            PLUS
+                            Exp (11)
+                              ID: i
+                        SEMI
+                      StmtList (12)
+                        Stmt (12)
+                          Exp (12)
+                            Exp (12)
+                              ID: i
+                            ASSIGNOP
+                            Exp (12)
+                              Exp (12)
+                                ID: i
+                              PLUS
+                              Exp (12)
+                                INT: 1
+                          SEMI
+                    RC
+              StmtList (14)
+                Stmt (14)
+                  RETURN
+                  Exp (14)
+                    ID: sum
+                  SEMI
+        RC
+
+=== Intermediate Code (Three-Address Code) ===
+FUNCTION main :
+i := #1
+sum := #0
+label1 :
+t1 := i <= #5
+IF t1 GOTO label2
+GOTO label3
+label2 :
+t2 := sum + i
+sum := t2
+t3 := i + #1
+i := t3
+GOTO label1
+label3 :
+RETURN sum
+END FUNCTION main
+
+Intermediate code saved to output.ir
