@@ -100,6 +100,55 @@ void emit(OpType op, Operand *result, Operand *arg1, Operand *arg2)
     }
 }
 
+// 检查并处理结构体成员访问
+Operand *handle_struct_member_access(TreeNode *exp)
+{
+    if (exp == NULL || exp->type != NODE_EXP)
+        return NULL;
+
+    TreeNode *child = exp->child;
+    if (child == NULL)
+        return NULL;
+
+    // 检查是否是结构体成员访问：ID DOT ID 或 EXP DOT ID
+    if (child->sibling != NULL && child->sibling->type == NODE_DOT &&
+        child->sibling->sibling != NULL && child->sibling->sibling->type == NODE_ID)
+    {
+        TreeNode *struct_node = child;
+        TreeNode *member_node = child->sibling->sibling;
+
+        // 如果第一个子节点是表达式，需要进一步解析
+        if (struct_node->type == NODE_EXP && struct_node->child != NULL &&
+            struct_node->child->type == NODE_ID)
+        {
+            struct_node = struct_node->child;
+        }
+
+        if (struct_node->type == NODE_ID)
+        {
+            char *struct_name = struct_node->value.string_value;
+            char *member_name = member_node->value.string_value;
+
+            // 创建组合变量名
+            int len = strlen(struct_name) + strlen(member_name) + 2;
+            char *combined_name = (char *)malloc(len);
+            snprintf(combined_name, len, "%s_%s", struct_name, member_name);
+
+            Operand *member_var = new_operand_variable(combined_name);
+            free(combined_name);
+            return member_var;
+        }
+    }
+
+    // 如果当前层不是结构体成员访问，递归检查子表达式
+    if (child->type == NODE_EXP)
+    {
+        return handle_struct_member_access(child);
+    }
+
+    return NULL;
+}
+
 // 翻译表达式
 Operand *translate_exp(TreeNode *exp)
 {
@@ -128,6 +177,16 @@ Operand *translate_exp(TreeNode *exp)
         TreeNode *child = exp->child;
         if (child == NULL)
             return NULL;
+
+        // 首先检查是否是直接的结构体成员访问（不是赋值表达式）
+        if (child->sibling == NULL || child->sibling->type != NODE_ASSIGNOP)
+        {
+            Operand *struct_member = handle_struct_member_access(exp);
+            if (struct_member != NULL)
+            {
+                return struct_member;
+            }
+        }
 
         // 处理括号表达式：LP Exp RP
         if (child->type == NODE_LP && child->sibling != NULL && child->sibling->sibling != NULL && child->sibling->sibling->type == NODE_RP)
@@ -171,83 +230,132 @@ Operand *translate_exp(TreeNode *exp)
             // 排除函数调用模式
             if (!(child->type == NODE_ID && child->sibling->type == NODE_LP))
             {
-                Operand *t1 = translate_exp(left);
-                Operand *t2 = translate_exp(right);
-
                 switch (op->type)
                 {
                 case NODE_ASSIGNOP:
+                {
+                    // 检查左操作数是否是结构体成员访问
+                    Operand *struct_member = handle_struct_member_access(left);
+                    if (struct_member != NULL)
+                    {
+                        // 这是结构体成员访问的赋值
+                        Operand *value = translate_exp(right);
+                        emit(OP_ASSIGN, struct_member, value, NULL);
+                        return struct_member;
+                    }
+
+                    // 普通赋值
+                    Operand *t1 = translate_exp(left);
+                    Operand *t2 = translate_exp(right);
                     emit(OP_ASSIGN, t1, t2, NULL);
                     return t1;
-                case NODE_PLUS:
-                case NODE_MINUS:
-                case NODE_STAR:
-                case NODE_DIV:
-                case NODE_RELOP:
-                case NODE_AND:
-                case NODE_OR:
-                case NODE_LB: // 数组访问 exp[exp]
+                }
+                default:
                 {
-                    Operand *result = new_operand_temp();
+                    Operand *t1 = translate_exp(left);
+                    Operand *t2 = translate_exp(right);
 
                     switch (op->type)
                     {
                     case NODE_PLUS:
-                        emit(OP_ADD, result, t1, t2);
-                        break;
                     case NODE_MINUS:
-                        emit(OP_SUB, result, t1, t2);
-                        break;
                     case NODE_STAR:
-                        emit(OP_MUL, result, t1, t2);
-                        break;
                     case NODE_DIV:
-                        emit(OP_DIV, result, t1, t2);
-                        break;
                     case NODE_RELOP:
-                    {
-                        if (strcmp(op->name, ">") == 0)
-                        {
-                            emit(OP_GT, result, t1, t2);
-                        }
-                        else if (strcmp(op->name, "<") == 0)
-                        {
-                            emit(OP_LT, result, t1, t2);
-                        }
-                        else if (strcmp(op->name, ">=") == 0)
-                        {
-                            emit(OP_GE, result, t1, t2);
-                        }
-                        else if (strcmp(op->name, "<=") == 0)
-                        {
-                            emit(OP_LE, result, t1, t2);
-                        }
-                        else if (strcmp(op->name, "==") == 0)
-                        {
-                            emit(OP_EQ, result, t1, t2);
-                        }
-                        else if (strcmp(op->name, "!=") == 0)
-                        {
-                            emit(OP_NE, result, t1, t2);
-                        }
-                        break;
-                    }
                     case NODE_AND:
-                        emit(OP_AND, result, t1, t2);
-                        break;
                     case NODE_OR:
-                        emit(OP_OR, result, t1, t2);
-                        break;
-                    case NODE_LB: // 数组访问 exp[exp]
-                        emit(OP_ARRAY_GET, result, t1, t2);
-                        break;
+                    case NODE_LB:  // 数组访问 exp[exp]
+                    case NODE_DOT: // 结构体成员访问 exp.id
+                    {
+                        Operand *result = new_operand_temp();
+
+                        switch (op->type)
+                        {
+                        case NODE_PLUS:
+                            emit(OP_ADD, result, t1, t2);
+                            break;
+                        case NODE_MINUS:
+                            emit(OP_SUB, result, t1, t2);
+                            break;
+                        case NODE_STAR:
+                            emit(OP_MUL, result, t1, t2);
+                            break;
+                        case NODE_DIV:
+                            emit(OP_DIV, result, t1, t2);
+                            break;
+                        case NODE_RELOP:
+                        {
+                            if (strcmp(op->name, ">") == 0)
+                            {
+                                emit(OP_GT, result, t1, t2);
+                            }
+                            else if (strcmp(op->name, "<") == 0)
+                            {
+                                emit(OP_LT, result, t1, t2);
+                            }
+                            else if (strcmp(op->name, ">=") == 0)
+                            {
+                                emit(OP_GE, result, t1, t2);
+                            }
+                            else if (strcmp(op->name, "<=") == 0)
+                            {
+                                emit(OP_LE, result, t1, t2);
+                            }
+                            else if (strcmp(op->name, "==") == 0)
+                            {
+                                emit(OP_EQ, result, t1, t2);
+                            }
+                            else if (strcmp(op->name, "!=") == 0)
+                            {
+                                emit(OP_NE, result, t1, t2);
+                            }
+                            break;
+                        }
+                        case NODE_AND:
+                            emit(OP_AND, result, t1, t2);
+                            break;
+                        case NODE_OR:
+                            emit(OP_OR, result, t1, t2);
+                            break;
+                        case NODE_LB: // 数组访问 exp[exp]
+                            emit(OP_ARRAY_GET, result, t1, t2);
+                            break;
+                        case NODE_DOT: // 结构体成员访问 exp.id
+                        {
+                            // 对于结构体成员访问，我们生成一个组合的变量名
+                            // 例如：p.x -> p_x
+                            if (left->type == NODE_ID && right->type == NODE_ID)
+                            {
+                                char *struct_name = left->value.string_value;
+                                char *member_name = right->value.string_value;
+
+                                // 创建组合变量名
+                                int len = strlen(struct_name) + strlen(member_name) + 2; // +2 for '_' and '\0'
+                                char *combined_name = (char *)malloc(len);
+                                snprintf(combined_name, len, "%s_%s", struct_name, member_name);
+
+                                // 创建变量操作数
+                                Operand *member_var = new_operand_variable(combined_name);
+                                free(combined_name);
+                                return member_var;
+                            }
+                            else
+                            {
+                                // 如果不是简单的ID.ID形式，返回临时变量
+                                return result;
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                        }
+                        return result;
+                    }
                     default:
                         break;
                     }
-                    return result;
-                }
-                default:
                     break;
+                }
                 }
             }
         }
