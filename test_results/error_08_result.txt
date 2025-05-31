@@ -1,0 +1,7 @@
+Error type 1 at Line 4: Undefined variable.
+Error type 5 at Line 6: Return type mismatch.
+Error type 3 at Line 17: Redefined variable.
+Error type 1 at Line 19: Undefined variable.
+Error type 2 at Line 21: Undefined function.
+Error type 5 at Line 25: Return type mismatch.
+Error type 6 at Line 25: Function call with wrong number of arguments.

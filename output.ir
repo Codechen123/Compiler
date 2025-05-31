@@ -1,6 +1,35 @@
 FUNCTION main :
-a := #5
-b := #1078523331
-a := b
-RETURN a
+sum := #0
+i := #1
+label1 :
+t1 := i <= #3
+IF t1 GOTO label2
+GOTO label3
+label2 :
+j := #1
+label4 :
+t2 := j <= #2
+IF t2 GOTO label5
+GOTO label6
+label5 :
+t3 := i > j
+IF t3 GOTO label7
+GOTO label8
+label7 :
+t4 := sum + i
+sum := t4
+GOTO label9
+label8 :
+t5 := sum + j
+sum := t5
+label9 :
+t6 := j + #1
+j := t6
+GOTO label4
+label6 :
+t7 := i + #1
+i := t7
+GOTO label1
+label3 :
+RETURN sum
 END FUNCTION main

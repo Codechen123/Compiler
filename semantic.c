@@ -332,6 +332,59 @@ void semantic_error(int type, int lineno, const char *msg)
     printf("Error type %d at Line %d: %s.\n", type, lineno, msg);
 }
 
+// 递归解析参数列表
+void parse_param_list(TreeNode *varlist, Param **params)
+{
+    if (!varlist || varlist->type != NODE_VARLIST)
+        return;
+
+    TreeNode *first_child = varlist->child;
+    if (!first_child)
+        return;
+
+    // 处理第一个参数
+    if (first_child->type == NODE_PARAMDEC)
+    {
+        DataType param_type = get_specifier_type(first_child->child);
+        add_param(params, param_type);
+
+        // 检查是否有更多参数 (COMMA VarList)
+        if (first_child->sibling && first_child->sibling->type == NODE_COMMA &&
+            first_child->sibling->sibling && first_child->sibling->sibling->type == NODE_VARLIST)
+        {
+            // 递归处理剩余的参数
+            parse_param_list(first_child->sibling->sibling, params);
+        }
+    }
+}
+
+// 递归解析实参列表
+void parse_args_list(TreeNode *args, Param **actual_params)
+{
+    if (!args || args->type != NODE_ARGS)
+        return;
+
+    TreeNode *first_child = args->child;
+    if (!first_child)
+        return;
+
+    // 处理第一个实参
+    if (first_child->type == NODE_EXP)
+    {
+        DataType arg_type = get_exp_type(first_child);
+        add_param(actual_params, arg_type);
+        analyze_expression(first_child); // 递归分析参数表达式
+
+        // 检查是否有更多实参 (COMMA Args)
+        if (first_child->sibling && first_child->sibling->type == NODE_COMMA &&
+            first_child->sibling->sibling && first_child->sibling->sibling->type == NODE_ARGS)
+        {
+            // 递归处理剩余的实参
+            parse_args_list(first_child->sibling->sibling, actual_params);
+        }
+    }
+}
+
 // 递归添加参数到当前作用域
 void add_params_to_scope(TreeNode *varlist)
 {
@@ -463,27 +516,21 @@ void analyze_function_call(TreeNode *exp)
     // 构建实参类型列表
     if (args)
     {
-        TreeNode *arg = args->child;
-        while (arg)
-        {
-            if (arg->type == NODE_EXP)
-            {
-                DataType arg_type = get_exp_type(arg);
-                add_param(&actual_params, arg_type);
-                analyze_expression(arg); // 递归分析参数表达式
-            }
-            arg = arg->sibling;
-        }
+        parse_args_list(args, &actual_params);
     }
 
-    // 检查参数匹配
-    if (!compare_params(func_sym->params, actual_params))
-    {
-        semantic_error(6, id_node->lineno, "Function call with wrong argument type");
-    }
-    else if (count_params(func_sym->params) != count_params(actual_params))
+    // 先检查参数数量
+    int expected_count = count_params(func_sym->params);
+    int actual_count = count_params(actual_params);
+
+    if (expected_count != actual_count)
     {
         semantic_error(6, id_node->lineno, "Function call with wrong number of arguments");
+    }
+    // 只有参数数量匹配时才检查参数类型
+    else if (!compare_params(func_sym->params, actual_params))
+    {
+        semantic_error(6, id_node->lineno, "Function call with wrong argument type");
     }
 
     // 释放临时参数列表
@@ -566,16 +613,7 @@ void analyze_function_def(TreeNode *extdef)
     // 解析参数
     if (varlist)
     {
-        TreeNode *param = varlist->child;
-        while (param)
-        {
-            if (param->type == NODE_PARAMDEC)
-            {
-                DataType param_type = get_specifier_type(param->child);
-                add_param(&params, param_type);
-            }
-            param = param->sibling;
-        }
+        parse_param_list(varlist, &params);
     }
 
     // 插入函数到符号表

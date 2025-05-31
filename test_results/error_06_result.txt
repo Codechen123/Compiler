@@ -1,0 +1,3 @@
+Error type 6 at Line 15: Function call with wrong number of arguments.
+Error type 6 at Line 18: Function call with wrong number of arguments.
+Error type 6 at Line 23: Function call with wrong argument type.

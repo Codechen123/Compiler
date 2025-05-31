@@ -78,6 +78,16 @@ int count_params(Param *params);
 // 错误报告
 void semantic_error(int type, int lineno, const char *msg);
 
-// 辅助函数char *get_identifier_name(TreeNode *node);DataType get_specifier_type(TreeNode *specifier);void analyze_function_def(TreeNode *extdef);void analyze_variable_def(TreeNode *def);void analyze_expression(TreeNode *exp);void analyze_statement(TreeNode *stmt);void analyze_function_call(TreeNode *exp);void add_params_to_scope(TreeNode *varlist);
+// 辅助函数
+char *get_identifier_name(TreeNode *node);
+DataType get_specifier_type(TreeNode *specifier);
+void analyze_function_def(TreeNode *extdef);
+void analyze_variable_def(TreeNode *def);
+void analyze_expression(TreeNode *exp);
+void analyze_statement(TreeNode *stmt);
+void analyze_function_call(TreeNode *exp);
+void add_params_to_scope(TreeNode *varlist);
+void parse_param_list(TreeNode *varlist, Param **params);
+void parse_args_list(TreeNode *args, Param **actual_params);
 
 #endif
