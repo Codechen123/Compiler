@@ -40,7 +40,7 @@ Operand *new_operand_constant_int(int value)
 Operand *new_operand_constant_float(float value)
 {
     Operand *op = (Operand *)malloc(sizeof(Operand));
-    op->type = OPERAND_CONSTANT;
+    op->type = OPERAND_CONSTANT_FLOAT;
     op->u.float_value = value;
     return op;
 }
@@ -858,6 +858,9 @@ void print_operand(Operand *op)
     case OPERAND_CONSTANT:
         printf("#%d", op->u.int_value);
         break;
+    case OPERAND_CONSTANT_FLOAT:
+        printf("#%.5f", op->u.float_value);
+        break;
     case OPERAND_TEMP:
         printf("t%d", op->u.temp_no);
         break;
@@ -1065,6 +1068,9 @@ static void fprint_operand(FILE *file, Operand *op)
         break;
     case OPERAND_CONSTANT:
         fprintf(file, "#%d", op->u.int_value);
+        break;
+    case OPERAND_CONSTANT_FLOAT:
+        fprintf(file, "#%g", op->u.float_value);
         break;
     case OPERAND_TEMP:
         fprintf(file, "t%d", op->u.temp_no);

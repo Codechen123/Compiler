@@ -57,7 +57,7 @@ Program (2)
 === Intermediate Code (Three-Address Code) ===
 FUNCTION main :
 a := #5
-b := #1078523331
+b := #3.14000
 RETURN a
 END FUNCTION main
 

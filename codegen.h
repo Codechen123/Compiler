@@ -42,11 +42,12 @@ typedef enum
 // 操作数类型
 typedef enum
 {
-    OPERAND_VARIABLE, // 变量
-    OPERAND_CONSTANT, // 常量
-    OPERAND_TEMP,     // 临时变量
-    OPERAND_LABEL,    // 标签
-    OPERAND_FUNCTION  // 函数名
+    OPERAND_VARIABLE,       // 变量
+    OPERAND_CONSTANT,       // 整数常量
+    OPERAND_CONSTANT_FLOAT, // 浮点数常量
+    OPERAND_TEMP,           // 临时变量
+    OPERAND_LABEL,          // 标签
+    OPERAND_FUNCTION        // 函数名
 } OperandType;
 
 // 操作数结构
