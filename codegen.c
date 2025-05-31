@@ -1070,7 +1070,7 @@ static void fprint_operand(FILE *file, Operand *op)
         fprintf(file, "#%d", op->u.int_value);
         break;
     case OPERAND_CONSTANT_FLOAT:
-        fprintf(file, "#%g", op->u.float_value);
+        fprintf(file, "#%.5f", op->u.float_value);
         break;
     case OPERAND_TEMP:
         fprintf(file, "t%d", op->u.temp_no);
