@@ -1,5 +1,3 @@
-我正在实现一个编译器，根据给定的文法定义，用Flex实现词法分析，Bison实现语法分析，生成语法树，文法定义如下：
-
 Tokens:
 
 INT → /* A sequence of digits without spaces */
