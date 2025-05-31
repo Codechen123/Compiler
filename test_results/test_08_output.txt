@@ -140,10 +140,12 @@ a := #5
 b := #3
 c := #2
 d := #4
-t1 := NULL * NULL
-t2 := a / b
-t3 := t1 + t2
-result := t3
+t1 := a + b
+t2 := c - d
+t3 := t1 * t2
+t4 := a / b
+t5 := t3 + t4
+result := t5
 RETURN result
 END FUNCTION main
 

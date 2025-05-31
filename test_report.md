@@ -160,6 +160,51 @@ RETURN c
 END FUNCTION main
 ```
 
+### 复杂表达式
+
+```c
+// 测试用例8: 复杂表达式
+int main() {
+    int a;
+    int b;
+    int c;
+    int d;
+    int result;
+    a = 5;
+    b = 3;
+    c = 2;
+    d = 4;
+    // 复杂的算术表达式
+    result = (a + b) * (c - d) + a / b;
+    return result;
+}
+```
+
+生成的三地址码：
+
+```
+FUNCTION main :
+a := #5
+b := #3
+c := #2
+d := #4
+t1 := a + b
+t2 := c - d
+t3 := t1 * t2
+t4 := a / b
+t5 := t3 + t4
+result := t5
+RETURN result
+END FUNCTION main
+```
+
+这个示例展示了编译器正确处理了：
+
+1. **括号表达式**: `(a + b)` 和 `(c - d)` 被正确识别和计算
+2. **运算符优先级**: 乘法和除法优先于加法
+3. **临时变量生成**: 自动生成临时变量 `t1`, `t2`, `t3`, `t4`, `t5` 来存储中间结果
+4. **表达式求值顺序**: 按照正确的顺序计算复杂表达式
+
 ## 功能特性测试结果
 
 ### 已实现功能

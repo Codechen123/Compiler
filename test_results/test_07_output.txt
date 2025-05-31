@@ -87,9 +87,9 @@ Program (3)
 
 === Intermediate Code (Three-Address Code) ===
 FUNCTION main :
-NULL := #10
-NULL := #20
-RETURN 
+t1 := #10
+t2 := #20
+RETURN t3
 END FUNCTION main
 
 Intermediate code saved to output.ir
