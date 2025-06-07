@@ -917,6 +917,15 @@ void print_code()
     Instruction *inst = code_head;
     while (inst != NULL)
     {
+        // 跳过被标记为死代码的指令（通过检查是否是被错误标记的OP_LABEL）
+        if (inst->op == OP_LABEL && inst->result &&
+            (inst->result->type == OPERAND_VARIABLE || inst->result->type == OPERAND_TEMP))
+        {
+            // 这是被标记为死代码的赋值指令，跳过打印
+            inst = inst->next;
+            continue;
+        }
+
         switch (inst->op)
         {
         case OP_ASSIGN:
@@ -1135,6 +1144,15 @@ void save_code_to_file(const char *filename)
     Instruction *inst = code_head;
     while (inst != NULL)
     {
+        // 跳过被标记为死代码的指令（通过检查是否是被错误标记的OP_LABEL）
+        if (inst->op == OP_LABEL && inst->result &&
+            (inst->result->type == OPERAND_VARIABLE || inst->result->type == OPERAND_TEMP))
+        {
+            // 这是被标记为死代码的赋值指令，跳过保存
+            inst = inst->next;
+            continue;
+        }
+
         switch (inst->op)
         {
         case OP_ASSIGN:
@@ -1410,7 +1428,12 @@ int count_instructions()
     Instruction *inst = code_head;
     while (inst != NULL)
     {
-        count++;
+        // 跳过被标记为死代码的指令
+        if (!(inst->op == OP_LABEL && inst->result &&
+              (inst->result->type == OPERAND_VARIABLE || inst->result->type == OPERAND_TEMP)))
+        {
+            count++;
+        }
         inst = inst->next;
     }
     return count;
@@ -1504,8 +1527,13 @@ bool is_dead_instruction(Instruction *inst)
         return false;
 
     Instruction *current = inst->next;
-    while (current != NULL)
+    int search_limit = 1000; // 防止无限循环，最多搜索1000条指令
+    int search_count = 0;
+
+    while (current != NULL && search_count < search_limit)
     {
+        search_count++;
+
         // 检查当前指令是否使用了inst的结果
         if ((current->arg1 && operands_equal(current->arg1, inst->result)) ||
             (current->arg2 && operands_equal(current->arg2, inst->result)))
@@ -1755,8 +1783,13 @@ void constant_propagation()
 
             // 在后续指令中替换对该变量的引用
             Instruction *next_inst = inst->next;
-            while (next_inst != NULL)
+            int propagate_limit = 1000; // 防止无限循环，最多传播1000条指令
+            int propagate_count = 0;
+
+            while (next_inst != NULL && propagate_count < propagate_limit)
             {
+                propagate_count++;
+
                 // 如果变量被重新赋值，停止传播
                 if (next_inst->result && operands_equal(next_inst->result, var))
                 {
@@ -1795,10 +1828,13 @@ void constant_propagation()
 void dead_code_elimination()
 {
     bool changed = true;
+    int max_iterations = 100; // 防止死循环，最多迭代100次
+    int iteration_count = 0;
 
-    while (changed)
+    while (changed && iteration_count < max_iterations)
     {
         changed = false;
+        iteration_count++;
         Instruction *inst = code_head;
 
         while (inst != NULL)
@@ -1814,6 +1850,11 @@ void dead_code_elimination()
 
             inst = next;
         }
+    }
+
+    if (iteration_count >= max_iterations)
+    {
+        printf("Warning: Dead code elimination reached maximum iterations (%d)\n", max_iterations);
     }
 }
 
@@ -1847,9 +1888,13 @@ void common_subexpression_elimination()
         if (inst1->op >= OP_ADD && inst1->op <= OP_OR && inst1->arg1 && inst1->arg2)
         {
             Instruction *inst2 = inst1->next;
+            int cse_limit = 1000; // 防止无限循环，最多搜索1000条指令
+            int cse_count = 0;
 
-            while (inst2 != NULL)
+            while (inst2 != NULL && cse_count < cse_limit)
             {
+                cse_count++;
+
                 // 查找相同的表达式
                 if (inst2->op == inst1->op &&
                     operands_equal(inst2->arg1, inst1->arg1) &&
@@ -1908,9 +1953,13 @@ void array_access_optimization()
         if (inst->op == OP_ARRAY_GET)
         {
             Instruction *next_inst = inst->next;
+            int array_limit = 1000; // 防止无限循环，最多搜索1000条指令
+            int array_count = 0;
 
-            while (next_inst != NULL)
+            while (next_inst != NULL && array_count < array_limit)
             {
+                array_count++;
+
                 // 查找相同的数组访问
                 if (next_inst->op == OP_ARRAY_GET &&
                     operands_equal(next_inst->arg1, inst->arg1) &&
@@ -2063,101 +2112,68 @@ void optimize_code()
         inst = inst->next;
     }
 
-    // 第四步：简化的死代码消除（删除指令）
+    // 第四步：安全的死代码消除
     printf("Applying dead code elimination...\n");
-    inst = code_head;
-    Instruction *prev = NULL;
 
-    while (inst != NULL)
+    // 使用标记-清除方法，避免在遍历时修改链表
+    bool found_dead_code = true;
+    int dce_iterations = 0;
+    int max_dce_iterations = 10; // 最多迭代10次
+
+    while (found_dead_code && dce_iterations < max_dce_iterations)
     {
-        bool should_remove = false;
+        found_dead_code = false;
+        dce_iterations++;
 
-        // 检查是否为死代码（结果未被使用的赋值）
-        if (inst->result && inst->op == OP_ASSIGN)
+        // 第一遍：标记死代码
+        inst = code_head;
+        while (inst != NULL)
         {
-            // 检查结果是否被使用
-            bool is_used = false;
-            Instruction *check_inst = inst->next;
-            while (check_inst != NULL)
+            if (inst->result && inst->op == OP_ASSIGN)
             {
-                if ((check_inst->arg1 && operands_equal(check_inst->arg1, inst->result)) ||
-                    (check_inst->arg2 && operands_equal(check_inst->arg2, inst->result)))
+                // 检查结果是否被使用
+                bool is_used = false;
+                Instruction *check_inst = inst->next;
+                int check_count = 0;
+
+                while (check_inst != NULL && check_count < 100) // 限制搜索范围
                 {
-                    is_used = true;
-                    break;
+                    check_count++;
+
+                    if ((check_inst->arg1 && operands_equal(check_inst->arg1, inst->result)) ||
+                        (check_inst->arg2 && operands_equal(check_inst->arg2, inst->result)))
+                    {
+                        is_used = true;
+                        break;
+                    }
+                    if (check_inst->op == OP_RETURN && check_inst->result &&
+                        operands_equal(check_inst->result, inst->result))
+                    {
+                        is_used = true;
+                        break;
+                    }
+                    check_inst = check_inst->next;
                 }
-                // 如果在RETURN语句中使用
-                if (check_inst->op == OP_RETURN && check_inst->arg1 &&
-                    operands_equal(check_inst->arg1, inst->result))
+
+                if (!is_used)
                 {
-                    is_used = true;
-                    break;
+                    // 将死代码转换为注释（通过修改操作码为一个无害的值）
+                    // 我们可以重用 OP_LABEL 作为"死代码"标记，因为它不会影响执行
+                    if (inst->op != OP_LABEL) // 避免重复标记
+                    {
+                        inst->op = OP_LABEL; // 标记为死代码
+                        found_dead_code = true;
+                        opt_stats.dead_code_elimination_count++;
+                    }
                 }
-                check_inst = check_inst->next;
             }
-
-            if (!is_used)
-            {
-                should_remove = true;
-            }
-        }
-        // 检查其他类型的死代码（算术运算结果未使用）
-        else if (inst->result && (inst->op == OP_ADD || inst->op == OP_SUB ||
-                                  inst->op == OP_MUL || inst->op == OP_DIV))
-        {
-            bool is_used = false;
-            Instruction *check_inst = inst->next;
-            while (check_inst != NULL)
-            {
-                if ((check_inst->arg1 && operands_equal(check_inst->arg1, inst->result)) ||
-                    (check_inst->arg2 && operands_equal(check_inst->arg2, inst->result)))
-                {
-                    is_used = true;
-                    break;
-                }
-                if (check_inst->op == OP_RETURN && check_inst->arg1 &&
-                    operands_equal(check_inst->arg1, inst->result))
-                {
-                    is_used = true;
-                    break;
-                }
-                check_inst = check_inst->next;
-            }
-
-            if (!is_used)
-            {
-                should_remove = true;
-            }
-        }
-
-        if (should_remove)
-        {
-            Instruction *to_remove = inst;
-            inst = inst->next;
-
-            // 从链表中删除
-            if (prev == NULL)
-            {
-                code_head = inst;
-            }
-            else
-            {
-                prev->next = inst;
-            }
-
-            if (to_remove == code_tail)
-            {
-                code_tail = prev;
-            }
-
-            free_instruction(to_remove);
-            opt_stats.dead_code_elimination_count++;
-        }
-        else
-        {
-            prev = inst;
             inst = inst->next;
         }
+    }
+
+    if (dce_iterations >= max_dce_iterations)
+    {
+        printf("Dead code elimination stopped after %d iterations.\n", max_dce_iterations);
     }
 
     opt_stats.total_instructions_after = count_instructions();

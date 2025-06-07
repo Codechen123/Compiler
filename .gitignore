@@ -19,9 +19,3 @@ output_optimized.ir
 
 # 测试输出
 test_results/*.txt
-
-# 不忽略重要文件
-!README.md
-!docs/*.md
-!tests/
-!scripts/
