@@ -44,4 +44,4 @@ main.o: main.c tree.h semantic.h codegen.h
 .PHONY: clean
 # 清理中间文件和目标文件
 clean:
-	rm -f $(TARGET) $(OBJS) parser.tab.c parser.tab.h lex.yy.c *~
+	rm -f $(TARGET) $(OBJS) *~

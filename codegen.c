@@ -149,6 +149,29 @@ Operand *handle_struct_member_access(TreeNode *exp)
     return NULL;
 }
 
+// 检查表达式是否是数组访问，如果是则返回数组名和索引
+bool is_array_access(TreeNode *exp, TreeNode **array_node, TreeNode **index_node)
+{
+    if (exp == NULL || exp->type != NODE_EXP)
+        return false;
+
+    TreeNode *child = exp->child;
+    if (child == NULL)
+        return false;
+
+    // 检查是否是数组访问：EXP LB EXP RB
+    if (child->sibling != NULL && child->sibling->type == NODE_LB &&
+        child->sibling->sibling != NULL && child->sibling->sibling->type == NODE_EXP &&
+        child->sibling->sibling->sibling != NULL && child->sibling->sibling->sibling->type == NODE_RB)
+    {
+        *array_node = child;
+        *index_node = child->sibling->sibling;
+        return true;
+    }
+
+    return false;
+}
+
 // 翻译表达式
 Operand *translate_exp(TreeNode *exp)
 {
@@ -242,6 +265,21 @@ Operand *translate_exp(TreeNode *exp)
                         Operand *value = translate_exp(right);
                         emit(OP_ASSIGN, struct_member, value, NULL);
                         return struct_member;
+                    }
+
+                    // 检查左操作数是否是数组访问
+                    TreeNode *array_node = NULL;
+                    TreeNode *index_node = NULL;
+                    if (is_array_access(left, &array_node, &index_node))
+                    {
+                        // 这是数组赋值：arr[index] = value
+                        Operand *array_name = translate_exp(array_node);
+                        Operand *index = translate_exp(index_node);
+                        Operand *value = translate_exp(right);
+
+                        // 生成数组赋值指令：arr[index] := value
+                        emit(OP_ARRAY_SET, array_name, index, value);
+                        return array_name;
                     }
 
                     // 普通赋值

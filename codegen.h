@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "semantic.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 // 三地址代码操作类型
 typedef enum
@@ -119,6 +120,10 @@ void translate_extdeflist(TreeNode *extdeflist);
 void print_code();
 void print_operand(Operand *op);
 void save_code_to_file(const char *filename);
+
+// 辅助函数
+Operand *handle_struct_member_access(TreeNode *exp);
+bool is_array_access(TreeNode *exp, TreeNode **array_node, TreeNode **index_node);
 
 // 内存管理
 void free_operand(Operand *op);
