@@ -1,5 +1,0 @@
-FUNCTION main :
-a := #5
-b := #3.14000
-RETURN a
-END FUNCTION main
