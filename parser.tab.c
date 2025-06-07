@@ -68,7 +68,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 189 of yacc.c  */
-#line 1 "parser.y"
+#line 1 "src/parser.y"
 
 #include <stdio.h>
 #include "tree.h"
@@ -153,7 +153,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 19 "parser.y"
+#line 19 "src/parser.y"
 
     TreeNode* node;
 
@@ -1536,7 +1536,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 54 "parser.y"
+#line 54 "src/parser.y"
     { (yyval.node) = create_node(NODE_PROGRAM, (yyloc).first_line, "Program"); 
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node));
                                    root = (yyval.node); ;}
@@ -1545,7 +1545,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 60 "parser.y"
+#line 60 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXTDEFLIST, (yyloc).first_line, "ExtDefList");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    if ((yyvsp[(2) - (2)].node)) add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1554,14 +1554,14 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 63 "parser.y"
+#line 63 "src/parser.y"
     { (yyval.node) = NULL; ;}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 66 "parser.y"
+#line 66 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXTDEF, (yyloc).first_line, "ExtDef");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1571,7 +1571,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 70 "parser.y"
+#line 70 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXTDEF, (yyloc).first_line, "ExtDef");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1580,7 +1580,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 73 "parser.y"
+#line 73 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXTDEF, (yyloc).first_line, "ExtDef");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1590,7 +1590,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 79 "parser.y"
+#line 79 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXTDECLIST, (yyloc).first_line, "ExtDecList");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1598,7 +1598,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 81 "parser.y"
+#line 81 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXTDECLIST, (yyloc).first_line, "ExtDecList");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1608,7 +1608,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 88 "parser.y"
+#line 88 "src/parser.y"
     { (yyval.node) = create_node(NODE_SPECIFIER, (yyloc).first_line, "Specifier");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1616,7 +1616,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 90 "parser.y"
+#line 90 "src/parser.y"
     { (yyval.node) = create_node(NODE_SPECIFIER, (yyloc).first_line, "Specifier");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1624,7 +1624,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 95 "parser.y"
+#line 95 "src/parser.y"
     { (yyval.node) = create_node(NODE_STRUCTSPECIFIER, (yyloc).first_line, "StructSpecifier");
                                    add_child((yyval.node), (yyvsp[(1) - (5)].node));
                                    if ((yyvsp[(2) - (5)].node)) add_sibling((yyvsp[(1) - (5)].node), (yyvsp[(2) - (5)].node));
@@ -1636,7 +1636,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 101 "parser.y"
+#line 101 "src/parser.y"
     { (yyval.node) = create_node(NODE_STRUCTSPECIFIER, (yyloc).first_line, "StructSpecifier");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1645,7 +1645,7 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 106 "parser.y"
+#line 106 "src/parser.y"
     { (yyval.node) = create_node(NODE_OPTTAG, (yyloc).first_line, "OptTag");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1653,14 +1653,14 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 108 "parser.y"
+#line 108 "src/parser.y"
     { (yyval.node) = NULL; ;}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 111 "parser.y"
+#line 111 "src/parser.y"
     { (yyval.node) = create_node(NODE_TAG, (yyloc).first_line, "Tag");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1668,7 +1668,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 116 "parser.y"
+#line 116 "src/parser.y"
     { (yyval.node) = create_node(NODE_VARDEC, (yyloc).first_line, "VarDec");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1676,7 +1676,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 118 "parser.y"
+#line 118 "src/parser.y"
     { (yyval.node) = create_node(NODE_VARDEC, (yyloc).first_line, "VarDec");
                                    add_child((yyval.node), (yyvsp[(1) - (4)].node));
                                    add_sibling((yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node));
@@ -1687,7 +1687,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 125 "parser.y"
+#line 125 "src/parser.y"
     { (yyval.node) = create_node(NODE_FUNDEC, (yyloc).first_line, "FunDec");
                                    add_child((yyval.node), (yyvsp[(1) - (4)].node));
                                    add_sibling((yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node));
@@ -1698,7 +1698,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 130 "parser.y"
+#line 130 "src/parser.y"
     { (yyval.node) = create_node(NODE_FUNDEC, (yyloc).first_line, "FunDec");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1708,7 +1708,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 136 "parser.y"
+#line 136 "src/parser.y"
     { (yyval.node) = create_node(NODE_VARLIST, (yyloc).first_line, "VarList");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1718,7 +1718,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 140 "parser.y"
+#line 140 "src/parser.y"
     { (yyval.node) = create_node(NODE_VARLIST, (yyloc).first_line, "VarList");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1726,7 +1726,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 144 "parser.y"
+#line 144 "src/parser.y"
     { (yyval.node) = create_node(NODE_PARAMDEC, (yyloc).first_line, "ParamDec");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1735,7 +1735,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 150 "parser.y"
+#line 150 "src/parser.y"
     { (yyval.node) = create_node(NODE_COMPST, (yyloc).first_line, "CompSt");
                                    add_child((yyval.node), (yyvsp[(1) - (4)].node));
                                    if ((yyvsp[(2) - (4)].node)) add_sibling((yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node));
@@ -1746,7 +1746,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 157 "parser.y"
+#line 157 "src/parser.y"
     { (yyval.node) = create_node(NODE_STMTLIST, (yyloc).first_line, "StmtList");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    if ((yyvsp[(2) - (2)].node)) add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1755,14 +1755,14 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 160 "parser.y"
+#line 160 "src/parser.y"
     { (yyval.node) = NULL; ;}
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 163 "parser.y"
+#line 163 "src/parser.y"
     { (yyval.node) = create_node(NODE_STMT, (yyloc).first_line, "Stmt");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1771,7 +1771,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 166 "parser.y"
+#line 166 "src/parser.y"
     { (yyval.node) = create_node(NODE_STMT, (yyloc).first_line, "Stmt");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1779,7 +1779,7 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 168 "parser.y"
+#line 168 "src/parser.y"
     { (yyval.node) = create_node(NODE_STMT, (yyloc).first_line, "Stmt");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1789,7 +1789,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 173 "parser.y"
+#line 173 "src/parser.y"
     { (yyval.node) = create_node(NODE_STMT, (yyloc).first_line, "Stmt");
                                    add_child((yyval.node), (yyvsp[(1) - (5)].node));
                                    add_sibling((yyvsp[(1) - (5)].node), (yyvsp[(2) - (5)].node));
@@ -1801,7 +1801,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 180 "parser.y"
+#line 180 "src/parser.y"
     { (yyval.node) = create_node(NODE_STMT, (yyloc).first_line, "Stmt");
                                    add_child((yyval.node), (yyvsp[(1) - (7)].node));
                                    add_sibling((yyvsp[(1) - (7)].node), (yyvsp[(2) - (7)].node));
@@ -1815,7 +1815,7 @@ yyreduce:
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 188 "parser.y"
+#line 188 "src/parser.y"
     { (yyval.node) = create_node(NODE_STMT, (yyloc).first_line, "Stmt");
                                    add_child((yyval.node), (yyvsp[(1) - (5)].node));
                                    add_sibling((yyvsp[(1) - (5)].node), (yyvsp[(2) - (5)].node));
@@ -1827,7 +1827,7 @@ yyreduce:
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 197 "parser.y"
+#line 197 "src/parser.y"
     { (yyval.node) = create_node(NODE_DEFLIST, (yyloc).first_line, "DefList");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    if ((yyvsp[(2) - (2)].node)) add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1836,14 +1836,14 @@ yyreduce:
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 200 "parser.y"
+#line 200 "src/parser.y"
     { (yyval.node) = NULL; ;}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 203 "parser.y"
+#line 203 "src/parser.y"
     { (yyval.node) = create_node(NODE_DEF, (yyloc).first_line, "Def");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1853,7 +1853,7 @@ yyreduce:
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 209 "parser.y"
+#line 209 "src/parser.y"
     { (yyval.node) = create_node(NODE_DECLIST, (yyloc).first_line, "DecList");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1861,7 +1861,7 @@ yyreduce:
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 211 "parser.y"
+#line 211 "src/parser.y"
     { (yyval.node) = create_node(NODE_DECLIST, (yyloc).first_line, "DecList");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1871,7 +1871,7 @@ yyreduce:
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 217 "parser.y"
+#line 217 "src/parser.y"
     { (yyval.node) = create_node(NODE_DEC, (yyloc).first_line, "Dec");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -1879,7 +1879,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 219 "parser.y"
+#line 219 "src/parser.y"
     { (yyval.node) = create_node(NODE_DEC, (yyloc).first_line, "Dec");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1889,7 +1889,7 @@ yyreduce:
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 226 "parser.y"
+#line 226 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1899,7 +1899,7 @@ yyreduce:
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 230 "parser.y"
+#line 230 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1909,7 +1909,7 @@ yyreduce:
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 234 "parser.y"
+#line 234 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1919,7 +1919,7 @@ yyreduce:
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 238 "parser.y"
+#line 238 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1929,7 +1929,7 @@ yyreduce:
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 242 "parser.y"
+#line 242 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1939,7 +1939,7 @@ yyreduce:
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 246 "parser.y"
+#line 246 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1949,7 +1949,7 @@ yyreduce:
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 250 "parser.y"
+#line 250 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1959,7 +1959,7 @@ yyreduce:
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 254 "parser.y"
+#line 254 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1969,7 +1969,7 @@ yyreduce:
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 258 "parser.y"
+#line 258 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -1979,7 +1979,7 @@ yyreduce:
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 262 "parser.y"
+#line 262 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1988,7 +1988,7 @@ yyreduce:
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 265 "parser.y"
+#line 265 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (2)].node));
                                    add_sibling((yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); ;}
@@ -1997,7 +1997,7 @@ yyreduce:
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 268 "parser.y"
+#line 268 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (4)].node));
                                    add_sibling((yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node));
@@ -2008,7 +2008,7 @@ yyreduce:
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 273 "parser.y"
+#line 273 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -2018,7 +2018,7 @@ yyreduce:
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 277 "parser.y"
+#line 277 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (4)].node));
                                    add_sibling((yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node));
@@ -2029,7 +2029,7 @@ yyreduce:
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 282 "parser.y"
+#line 282 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -2039,7 +2039,7 @@ yyreduce:
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 286 "parser.y"
+#line 286 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -2047,7 +2047,7 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 288 "parser.y"
+#line 288 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -2055,7 +2055,7 @@ yyreduce:
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 290 "parser.y"
+#line 290 "src/parser.y"
     { (yyval.node) = create_node(NODE_EXP, (yyloc).first_line, "Exp");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -2063,7 +2063,7 @@ yyreduce:
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 294 "parser.y"
+#line 294 "src/parser.y"
     { (yyval.node) = create_node(NODE_ARGS, (yyloc).first_line, "Args");
                                    add_child((yyval.node), (yyvsp[(1) - (3)].node));
                                    add_sibling((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
@@ -2073,7 +2073,7 @@ yyreduce:
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 298 "parser.y"
+#line 298 "src/parser.y"
     { (yyval.node) = create_node(NODE_ARGS, (yyloc).first_line, "Args");
                                    add_child((yyval.node), (yyvsp[(1) - (1)].node)); ;}
     break;
@@ -2300,5 +2300,5 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 302 "parser.y"
+#line 302 "src/parser.y"
 

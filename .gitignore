@@ -1,3 +1,27 @@
+# 编译产物
 *.o
 *.exe
+parser
+lex.yy.c
+parser.tab.c
+parser.tab.h
+
+# 临时输出文件
 output.ir
+output_optimized.ir
+*.tmp
+
+# IDE和编辑器文件
+.vscode/
+*.swp
+*.swo
+*~
+
+# 测试输出
+test_results/*.txt
+
+# 不忽略重要文件
+!README.md
+!docs/*.md
+!tests/
+!scripts/

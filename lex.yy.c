@@ -433,9 +433,9 @@ goto find_rule; \
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "lexer.l"
+#line 1 "src/lexer.l"
 #define INITIAL 0
-#line 2 "lexer.l"
+#line 2 "src/lexer.l"
 #include "tree.h"
 #include "parser.tab.h"
 #include <stdio.h>
@@ -600,7 +600,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 28 "lexer.l"
+#line 28 "src/lexer.l"
 
 
 #line 607 "lex.yy.c"
@@ -696,27 +696,27 @@ do_action:	/* This label is used only to access EOF actions. */
 	{ /* beginning of action switch */
 case 1:
 YY_RULE_SETUP
-#line 30 "lexer.l"
+#line 30 "src/lexer.l"
 { /* ignore whitespace */ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 31 "lexer.l"
+#line 31 "src/lexer.l"
 { yycolumn = 1; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 33 "lexer.l"
+#line 33 "src/lexer.l"
 { /* ignore single-line comments */ }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 34 "lexer.l"
+#line 34 "src/lexer.l"
 { /* ignore multi-line comments */ }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 36 "lexer.l"
+#line 36 "src/lexer.l"
 { 
     yylval.node = create_node(NODE_TYPE, yylineno, "int"); 
     yylval.node->value.string_value = strdup("int");
@@ -725,7 +725,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 41 "lexer.l"
+#line 41 "src/lexer.l"
 { 
     yylval.node = create_node(NODE_TYPE, yylineno, "float"); 
     yylval.node->value.string_value = strdup("float");
@@ -734,147 +734,147 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 46 "lexer.l"
+#line 46 "src/lexer.l"
 { yylval.node = create_node(NODE_STRUCT, yylineno, "STRUCT"); return STRUCT; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 47 "lexer.l"
+#line 47 "src/lexer.l"
 { yylval.node = create_node(NODE_RETURN, yylineno, "RETURN"); return RETURN; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "lexer.l"
+#line 48 "src/lexer.l"
 { yylval.node = create_node(NODE_IF, yylineno, "IF"); return IF; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 49 "lexer.l"
+#line 49 "src/lexer.l"
 { yylval.node = create_node(NODE_ELSE, yylineno, "ELSE"); return ELSE; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 50 "lexer.l"
+#line 50 "src/lexer.l"
 { yylval.node = create_node(NODE_WHILE, yylineno, "WHILE"); return WHILE; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 52 "lexer.l"
+#line 52 "src/lexer.l"
 { yylval.node = create_node(NODE_SEMI, yylineno, "SEMI"); return SEMI; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 53 "lexer.l"
+#line 53 "src/lexer.l"
 { yylval.node = create_node(NODE_COMMA, yylineno, "COMMA"); return COMMA; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 54 "lexer.l"
+#line 54 "src/lexer.l"
 { yylval.node = create_node(NODE_ASSIGNOP, yylineno, "ASSIGNOP"); return ASSIGNOP; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 55 "lexer.l"
+#line 55 "src/lexer.l"
 { yylval.node = create_node(NODE_RELOP, yylineno, ">"); return RELOP; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 56 "lexer.l"
+#line 56 "src/lexer.l"
 { yylval.node = create_node(NODE_RELOP, yylineno, "<"); return RELOP; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 57 "lexer.l"
+#line 57 "src/lexer.l"
 { yylval.node = create_node(NODE_RELOP, yylineno, ">="); return RELOP; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 58 "lexer.l"
+#line 58 "src/lexer.l"
 { yylval.node = create_node(NODE_RELOP, yylineno, "<="); return RELOP; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 59 "lexer.l"
+#line 59 "src/lexer.l"
 { yylval.node = create_node(NODE_RELOP, yylineno, "=="); return RELOP; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 60 "lexer.l"
+#line 60 "src/lexer.l"
 { yylval.node = create_node(NODE_RELOP, yylineno, "!="); return RELOP; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 61 "lexer.l"
+#line 61 "src/lexer.l"
 { yylval.node = create_node(NODE_PLUS, yylineno, "PLUS"); return PLUS; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 62 "lexer.l"
+#line 62 "src/lexer.l"
 { yylval.node = create_node(NODE_MINUS, yylineno, "MINUS"); return MINUS; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 63 "lexer.l"
+#line 63 "src/lexer.l"
 { yylval.node = create_node(NODE_STAR, yylineno, "STAR"); return STAR; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 64 "lexer.l"
+#line 64 "src/lexer.l"
 { yylval.node = create_node(NODE_DIV, yylineno, "DIV"); return DIV; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 65 "lexer.l"
+#line 65 "src/lexer.l"
 { yylval.node = create_node(NODE_AND, yylineno, "AND"); return AND; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 66 "lexer.l"
+#line 66 "src/lexer.l"
 { yylval.node = create_node(NODE_OR, yylineno, "OR"); return OR; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 67 "lexer.l"
+#line 67 "src/lexer.l"
 { yylval.node = create_node(NODE_DOT, yylineno, "DOT"); return DOT; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 68 "lexer.l"
+#line 68 "src/lexer.l"
 { yylval.node = create_node(NODE_NOT, yylineno, "NOT"); return NOT; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 69 "lexer.l"
+#line 69 "src/lexer.l"
 { yylval.node = create_node(NODE_LP, yylineno, "LP"); return LP; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 70 "lexer.l"
+#line 70 "src/lexer.l"
 { yylval.node = create_node(NODE_RP, yylineno, "RP"); return RP; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 71 "lexer.l"
+#line 71 "src/lexer.l"
 { yylval.node = create_node(NODE_LB, yylineno, "LB"); return LB; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 72 "lexer.l"
+#line 72 "src/lexer.l"
 { yylval.node = create_node(NODE_RB, yylineno, "RB"); return RB; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 73 "lexer.l"
+#line 73 "src/lexer.l"
 { yylval.node = create_node(NODE_LC, yylineno, "LC"); return LC; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 74 "lexer.l"
+#line 74 "src/lexer.l"
 { yylval.node = create_node(NODE_RC, yylineno, "RC"); return RC; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 76 "lexer.l"
+#line 76 "src/lexer.l"
 { 
     yylval.node = create_node(NODE_ID, yylineno, yytext);
     yylval.node->value.string_value = strdup(yytext);
@@ -883,7 +883,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 82 "lexer.l"
+#line 82 "src/lexer.l"
 {
     yylval.node = create_node(NODE_INT, yylineno, "INT");
     yylval.node->value.int_value = atoi(yytext);
@@ -892,7 +892,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 88 "lexer.l"
+#line 88 "src/lexer.l"
 {
     yylval.node = create_node(NODE_FLOAT, yylineno, "FLOAT");
     yylval.node->value.float_value = atof(yytext);
@@ -901,7 +901,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 94 "lexer.l"
+#line 94 "src/lexer.l"
 { 
     printf("Error type A at Line %d: Mysterious character \"%s\".\n", yylineno, yytext);
     has_lexical_error = 1;
@@ -909,7 +909,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 99 "lexer.l"
+#line 99 "src/lexer.l"
 ECHO;
 	YY_BREAK
 #line 916 "lex.yy.c"
@@ -1796,7 +1796,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 99 "lexer.l"
+#line 99 "src/lexer.l"
 
 
 int yywrap() {

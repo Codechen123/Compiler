@@ -130,4 +130,41 @@ void free_operand(Operand *op);
 void free_instruction(Instruction *inst);
 void free_all_code();
 
+// 中间代码优化函数
+void optimize_code();
+void constant_folding();
+void constant_propagation();
+void dead_code_elimination();
+void common_subexpression_elimination();
+void redundant_assignment_elimination();
+void array_access_optimization();
+
+// 优化辅助函数
+bool is_constant_operand(Operand *op);
+int get_constant_value(Operand *op);
+bool operands_equal(Operand *op1, Operand *op2);
+bool is_dead_instruction(Instruction *inst);
+bool is_redundant_assignment(Instruction *inst);
+Instruction *find_previous_assignment(Operand *var);
+void remove_instruction(Instruction *inst);
+void replace_operand_references(Operand *old_op, Operand *new_op);
+
+// 优化统计
+typedef struct OptimizationStats
+{
+    int constant_folding_count;
+    int constant_propagation_count;
+    int dead_code_elimination_count;
+    int common_subexpression_count;
+    int redundant_assignment_count;
+    int array_access_optimization_count;
+    int total_instructions_before;
+    int total_instructions_after;
+} OptimizationStats;
+
+extern OptimizationStats opt_stats;
+
+void init_optimization_stats();
+void print_optimization_stats();
+
 #endif

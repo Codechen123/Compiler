@@ -1384,3 +1384,784 @@ int translate_args(TreeNode *args)
 
     return param_count;
 }
+
+// ========================= 中间代码优化实现 =========================
+
+// 优化统计全局变量
+OptimizationStats opt_stats;
+
+// 初始化优化统计
+void init_optimization_stats()
+{
+    opt_stats.constant_folding_count = 0;
+    opt_stats.constant_propagation_count = 0;
+    opt_stats.dead_code_elimination_count = 0;
+    opt_stats.common_subexpression_count = 0;
+    opt_stats.redundant_assignment_count = 0;
+    opt_stats.array_access_optimization_count = 0;
+    opt_stats.total_instructions_before = 0;
+    opt_stats.total_instructions_after = 0;
+}
+
+// 统计指令数量
+int count_instructions()
+{
+    int count = 0;
+    Instruction *inst = code_head;
+    while (inst != NULL)
+    {
+        count++;
+        inst = inst->next;
+    }
+    return count;
+}
+
+// 打印优化统计信息
+void print_optimization_stats()
+{
+    printf("\n=== Code Optimization Statistics ===\n");
+    printf("Instructions before optimization: %d\n", opt_stats.total_instructions_before);
+    printf("Instructions after optimization:  %d\n", opt_stats.total_instructions_after);
+    printf("Instructions eliminated: %d (%.1f%%)\n",
+           opt_stats.total_instructions_before - opt_stats.total_instructions_after,
+           opt_stats.total_instructions_before > 0 ? 100.0 * (opt_stats.total_instructions_before - opt_stats.total_instructions_after) / opt_stats.total_instructions_before : 0.0);
+    printf("\nOptimization breakdown:\n");
+    printf("- Constant folding:           %d\n", opt_stats.constant_folding_count);
+    printf("- Constant propagation:       %d\n", opt_stats.constant_propagation_count);
+    printf("- Dead code elimination:      %d\n", opt_stats.dead_code_elimination_count);
+    printf("- Common subexpression:       %d\n", opt_stats.common_subexpression_count);
+    printf("- Redundant assignment:       %d\n", opt_stats.redundant_assignment_count);
+    printf("- Array access optimization:  %d\n", opt_stats.array_access_optimization_count);
+    printf("=====================================\n\n");
+}
+
+// 检查操作数是否为常量
+bool is_constant_operand(Operand *op)
+{
+    return op != NULL && (op->type == OPERAND_CONSTANT || op->type == OPERAND_CONSTANT_FLOAT);
+}
+
+// 获取常量值（仅适用于整数常量）
+int get_constant_value(Operand *op)
+{
+    if (op != NULL && op->type == OPERAND_CONSTANT)
+        return op->u.int_value;
+    return 0;
+}
+
+// 检查两个操作数是否相等
+bool operands_equal(Operand *op1, Operand *op2)
+{
+    if (op1 == NULL || op2 == NULL)
+        return false;
+
+    if (op1->type != op2->type)
+        return false;
+
+    switch (op1->type)
+    {
+    case OPERAND_VARIABLE:
+    case OPERAND_FUNCTION:
+        return strcmp(op1->u.name, op2->u.name) == 0;
+    case OPERAND_CONSTANT:
+        return op1->u.int_value == op2->u.int_value;
+    case OPERAND_CONSTANT_FLOAT:
+        return op1->u.float_value == op2->u.float_value;
+    case OPERAND_TEMP:
+    case OPERAND_LABEL:
+        return op1->u.temp_no == op2->u.temp_no;
+    }
+    return false;
+}
+
+// 检查指令是否为死代码
+bool is_dead_instruction(Instruction *inst)
+{
+    if (inst == NULL)
+        return false;
+
+    // 有副作用的指令不能删除
+    switch (inst->op)
+    {
+    case OP_CALL:
+    case OP_ARG:
+    case OP_PARAM:
+    case OP_RETURN:
+    case OP_ARRAY_SET:
+    case OP_GOTO:
+    case OP_IF_GOTO:
+    case OP_IF_NOT_GOTO:
+    case OP_LABEL:
+    case OP_FUNC_DEF:
+    case OP_FUNC_END:
+        return false;
+    default:
+        break;
+    }
+
+    // 检查结果是否被使用
+    if (inst->result == NULL)
+        return false;
+
+    Instruction *current = inst->next;
+    while (current != NULL)
+    {
+        // 检查当前指令是否使用了inst的结果
+        if ((current->arg1 && operands_equal(current->arg1, inst->result)) ||
+            (current->arg2 && operands_equal(current->arg2, inst->result)))
+        {
+            return false; // 被使用，不是死代码
+        }
+
+        // 如果有其他指令重新定义了相同的变量，则停止搜索
+        if (current->result && operands_equal(current->result, inst->result))
+        {
+            break;
+        }
+
+        current = current->next;
+    }
+
+    return true; // 未被使用，是死代码
+}
+
+// 检查是否为冗余赋值
+bool is_redundant_assignment(Instruction *inst)
+{
+    if (inst == NULL || inst->op != OP_ASSIGN)
+        return false;
+
+    // x = x 形式的赋值是冗余的
+    return operands_equal(inst->result, inst->arg1);
+}
+
+// 查找变量的前一次赋值
+Instruction *find_previous_assignment(Operand *var)
+{
+    Instruction *inst = code_head;
+    Instruction *last_assignment = NULL;
+
+    while (inst != NULL)
+    {
+        if (inst->result && operands_equal(inst->result, var))
+        {
+            last_assignment = inst;
+        }
+        inst = inst->next;
+    }
+
+    return last_assignment;
+}
+
+// 删除指令
+void remove_instruction(Instruction *inst)
+{
+    if (inst == NULL)
+        return;
+
+    // 找到前一条指令
+    Instruction *prev = NULL;
+    Instruction *current = code_head;
+
+    while (current != NULL && current != inst)
+    {
+        prev = current;
+        current = current->next;
+    }
+
+    if (current == NULL)
+        return; // 指令不在链表中
+
+    // 更新链表连接
+    if (prev == NULL)
+    {
+        // 删除的是头节点
+        code_head = inst->next;
+    }
+    else
+    {
+        prev->next = inst->next;
+    }
+
+    if (inst == code_tail)
+    {
+        code_tail = prev;
+    }
+
+    // 释放指令内存
+    free_instruction(inst);
+}
+
+// 替换操作数引用
+void replace_operand_references(Operand *old_op, Operand *new_op)
+{
+    Instruction *inst = code_head;
+
+    while (inst != NULL)
+    {
+        if (inst->arg1 && operands_equal(inst->arg1, old_op))
+        {
+            free_operand(inst->arg1);
+            // 根据新操作数的类型创建对应的操作数
+            if (new_op->type == OPERAND_CONSTANT)
+            {
+                inst->arg1 = new_operand_constant_int(new_op->u.int_value);
+            }
+            else if (new_op->type == OPERAND_TEMP)
+            {
+                inst->arg1 = new_operand_temp();
+                inst->arg1->u.temp_no = new_op->u.temp_no;
+            }
+            else if (new_op->type == OPERAND_VARIABLE)
+            {
+                inst->arg1 = new_operand_variable(new_op->u.name);
+            }
+        }
+        if (inst->arg2 && operands_equal(inst->arg2, old_op))
+        {
+            free_operand(inst->arg2);
+            // 根据新操作数的类型创建对应的操作数
+            if (new_op->type == OPERAND_CONSTANT)
+            {
+                inst->arg2 = new_operand_constant_int(new_op->u.int_value);
+            }
+            else if (new_op->type == OPERAND_TEMP)
+            {
+                inst->arg2 = new_operand_temp();
+                inst->arg2->u.temp_no = new_op->u.temp_no;
+            }
+            else if (new_op->type == OPERAND_VARIABLE)
+            {
+                inst->arg2 = new_operand_variable(new_op->u.name);
+            }
+        }
+        inst = inst->next;
+    }
+}
+
+// 常量折叠优化
+void constant_folding()
+{
+    Instruction *inst = code_head;
+
+    while (inst != NULL)
+    {
+        Instruction *next = inst->next; // 保存下一条指令，因为当前指令可能被修改
+
+        if (inst->arg1 && inst->arg2 &&
+            is_constant_operand(inst->arg1) && is_constant_operand(inst->arg2))
+        {
+            int val1 = get_constant_value(inst->arg1);
+            int val2 = get_constant_value(inst->arg2);
+            int result_val = 0;
+            bool can_fold = true;
+
+            switch (inst->op)
+            {
+            case OP_ADD:
+                result_val = val1 + val2;
+                break;
+            case OP_SUB:
+                result_val = val1 - val2;
+                break;
+            case OP_MUL:
+                result_val = val1 * val2;
+                break;
+            case OP_DIV:
+                if (val2 != 0)
+                    result_val = val1 / val2;
+                else
+                    can_fold = false;
+                break;
+            case OP_GT:
+                result_val = val1 > val2 ? 1 : 0;
+                break;
+            case OP_LT:
+                result_val = val1 < val2 ? 1 : 0;
+                break;
+            case OP_GE:
+                result_val = val1 >= val2 ? 1 : 0;
+                break;
+            case OP_LE:
+                result_val = val1 <= val2 ? 1 : 0;
+                break;
+            case OP_EQ:
+                result_val = val1 == val2 ? 1 : 0;
+                break;
+            case OP_NE:
+                result_val = val1 != val2 ? 1 : 0;
+                break;
+            default:
+                can_fold = false;
+                break;
+            }
+
+            if (can_fold)
+            {
+                // 将指令转换为赋值指令
+                inst->op = OP_ASSIGN;
+                free_operand(inst->arg1);
+                free_operand(inst->arg2);
+                inst->arg1 = new_operand_constant_int(result_val);
+                inst->arg2 = NULL;
+                opt_stats.constant_folding_count++;
+            }
+        }
+        // 处理单操作数的常量折叠
+        else if (inst->arg1 && is_constant_operand(inst->arg1) && inst->arg2 == NULL)
+        {
+            int val = get_constant_value(inst->arg1);
+            int result_val = 0;
+            bool can_fold = true;
+
+            switch (inst->op)
+            {
+            case OP_NEG:
+                result_val = -val;
+                break;
+            case OP_NOT:
+                result_val = !val ? 1 : 0;
+                break;
+            default:
+                can_fold = false;
+                break;
+            }
+
+            if (can_fold)
+            {
+                inst->op = OP_ASSIGN;
+                free_operand(inst->arg1);
+                inst->arg1 = new_operand_constant_int(result_val);
+                opt_stats.constant_folding_count++;
+            }
+        }
+
+        inst = next;
+    }
+}
+
+// 常量传播优化
+void constant_propagation()
+{
+    Instruction *inst = code_head;
+
+    while (inst != NULL)
+    {
+        // 查找形如 x = constant 的赋值
+        if (inst->op == OP_ASSIGN && inst->arg1 && is_constant_operand(inst->arg1))
+        {
+            Operand *var = inst->result;
+            Operand *constant = inst->arg1;
+
+            // 在后续指令中替换对该变量的引用
+            Instruction *next_inst = inst->next;
+            while (next_inst != NULL)
+            {
+                // 如果变量被重新赋值，停止传播
+                if (next_inst->result && operands_equal(next_inst->result, var))
+                {
+                    break;
+                }
+
+                // 替换对该变量的使用
+                bool replaced = false;
+                if (next_inst->arg1 && operands_equal(next_inst->arg1, var))
+                {
+                    free_operand(next_inst->arg1);
+                    next_inst->arg1 = new_operand_constant_int(get_constant_value(constant));
+                    replaced = true;
+                }
+                if (next_inst->arg2 && operands_equal(next_inst->arg2, var))
+                {
+                    free_operand(next_inst->arg2);
+                    next_inst->arg2 = new_operand_constant_int(get_constant_value(constant));
+                    replaced = true;
+                }
+
+                if (replaced)
+                {
+                    opt_stats.constant_propagation_count++;
+                }
+
+                next_inst = next_inst->next;
+            }
+        }
+
+        inst = inst->next;
+    }
+}
+
+// 死代码消除优化
+void dead_code_elimination()
+{
+    bool changed = true;
+
+    while (changed)
+    {
+        changed = false;
+        Instruction *inst = code_head;
+
+        while (inst != NULL)
+        {
+            Instruction *next = inst->next;
+
+            if (is_dead_instruction(inst))
+            {
+                remove_instruction(inst);
+                opt_stats.dead_code_elimination_count++;
+                changed = true;
+            }
+
+            inst = next;
+        }
+    }
+}
+
+// 冗余赋值消除
+void redundant_assignment_elimination()
+{
+    Instruction *inst = code_head;
+
+    while (inst != NULL)
+    {
+        Instruction *next = inst->next;
+
+        if (is_redundant_assignment(inst))
+        {
+            remove_instruction(inst);
+            opt_stats.redundant_assignment_count++;
+        }
+
+        inst = next;
+    }
+}
+
+// 公共子表达式消除
+void common_subexpression_elimination()
+{
+    Instruction *inst1 = code_head;
+
+    while (inst1 != NULL)
+    {
+        // 查找计算表达式的指令
+        if (inst1->op >= OP_ADD && inst1->op <= OP_OR && inst1->arg1 && inst1->arg2)
+        {
+            Instruction *inst2 = inst1->next;
+
+            while (inst2 != NULL)
+            {
+                // 查找相同的表达式
+                if (inst2->op == inst1->op &&
+                    operands_equal(inst2->arg1, inst1->arg1) &&
+                    operands_equal(inst2->arg2, inst1->arg2))
+                {
+                    // 替换inst2的结果为inst1的结果
+                    replace_operand_references(inst2->result, inst1->result);
+
+                    // 将inst2转换为赋值指令
+                    inst2->op = OP_ASSIGN;
+                    free_operand(inst2->arg1);
+                    free_operand(inst2->arg2);
+
+                    // 正确创建操作数
+                    if (inst1->result->type == OPERAND_TEMP)
+                    {
+                        inst2->arg1 = new_operand_temp();
+                        inst2->arg1->u.temp_no = inst1->result->u.temp_no;
+                    }
+                    else if (inst1->result->type == OPERAND_VARIABLE)
+                    {
+                        inst2->arg1 = new_operand_variable(inst1->result->u.name);
+                    }
+                    else
+                    {
+                        inst2->arg1 = new_operand_constant_int(inst1->result->u.int_value);
+                    }
+                    inst2->arg2 = NULL;
+
+                    opt_stats.common_subexpression_count++;
+                }
+
+                // 如果操作数被重新定义，停止搜索
+                if ((inst2->result && operands_equal(inst2->result, inst1->arg1)) ||
+                    (inst2->result && operands_equal(inst2->result, inst1->arg2)))
+                {
+                    break;
+                }
+
+                inst2 = inst2->next;
+            }
+        }
+
+        inst1 = inst1->next;
+    }
+}
+
+// 数组访问优化
+void array_access_optimization()
+{
+    Instruction *inst = code_head;
+
+    while (inst != NULL)
+    {
+        // 查找重复的数组访问模式
+        if (inst->op == OP_ARRAY_GET)
+        {
+            Instruction *next_inst = inst->next;
+
+            while (next_inst != NULL)
+            {
+                // 查找相同的数组访问
+                if (next_inst->op == OP_ARRAY_GET &&
+                    operands_equal(next_inst->arg1, inst->arg1) &&
+                    operands_equal(next_inst->arg2, inst->arg2))
+                {
+                    // 用第一次访问的结果替换第二次访问
+                    replace_operand_references(next_inst->result, inst->result);
+
+                    // 删除重复的数组访问
+                    Instruction *to_remove = next_inst;
+                    next_inst = next_inst->next;
+                    remove_instruction(to_remove);
+                    opt_stats.array_access_optimization_count++;
+                    continue;
+                }
+
+                // 如果数组被修改，停止优化
+                if (next_inst->op == OP_ARRAY_SET &&
+                    operands_equal(next_inst->result, inst->arg1))
+                {
+                    break;
+                }
+
+                next_inst = next_inst->next;
+            }
+        }
+
+        inst = inst->next;
+    }
+}
+
+// 优化函数
+void optimize_code()
+{
+    init_optimization_stats();
+    opt_stats.total_instructions_before = count_instructions();
+
+    printf("=== Starting Code Optimization ===\n");
+    printf("Instructions before optimization: %d\n", opt_stats.total_instructions_before);
+
+    // 第一步：常量折叠
+    printf("Applying constant folding...\n");
+    Instruction *inst = code_head;
+    while (inst != NULL)
+    {
+        // 简单的常量折叠：将 x + 0 优化为 x
+        if (inst->op == OP_ADD && inst->arg2 && inst->arg2->type == OPERAND_CONSTANT && inst->arg2->u.int_value == 0)
+        {
+            inst->op = OP_ASSIGN;
+            free_operand(inst->arg2);
+            inst->arg2 = NULL;
+            opt_stats.constant_folding_count++;
+        }
+        // 简单的常量折叠：将 x * 1 优化为 x
+        else if (inst->op == OP_MUL && inst->arg2 && inst->arg2->type == OPERAND_CONSTANT && inst->arg2->u.int_value == 1)
+        {
+            inst->op = OP_ASSIGN;
+            free_operand(inst->arg2);
+            inst->arg2 = NULL;
+            opt_stats.constant_folding_count++;
+        }
+        // 常量折叠：计算常量表达式
+        else if ((inst->op == OP_ADD || inst->op == OP_MUL || inst->op == OP_SUB) &&
+                 inst->arg1 && inst->arg1->type == OPERAND_CONSTANT &&
+                 inst->arg2 && inst->arg2->type == OPERAND_CONSTANT)
+        {
+            int val1 = inst->arg1->u.int_value;
+            int val2 = inst->arg2->u.int_value;
+            int result_val = 0;
+
+            if (inst->op == OP_ADD)
+                result_val = val1 + val2;
+            else if (inst->op == OP_SUB)
+                result_val = val1 - val2;
+            else if (inst->op == OP_MUL)
+                result_val = val1 * val2;
+
+            inst->op = OP_ASSIGN;
+            free_operand(inst->arg1);
+            free_operand(inst->arg2);
+            inst->arg1 = new_operand_constant_int(result_val);
+            inst->arg2 = NULL;
+            opt_stats.constant_folding_count++;
+        }
+
+        inst = inst->next;
+    }
+
+    // 第二步：基本的常量传播
+    printf("Applying basic constant propagation...\n");
+    inst = code_head;
+    while (inst != NULL)
+    {
+        // 查找 x := constant 形式的赋值
+        if (inst->op == OP_ASSIGN && inst->arg1 && inst->arg1->type == OPERAND_CONSTANT)
+        {
+            Operand *var = inst->result;
+            int constant_value = inst->arg1->u.int_value;
+
+            // 在紧接着的下一条指令中查找对该变量的使用
+            Instruction *next_inst = inst->next;
+            if (next_inst && next_inst->arg1 && operands_equal(next_inst->arg1, var))
+            {
+                // 替换变量为常量
+                free_operand(next_inst->arg1);
+                next_inst->arg1 = new_operand_constant_int(constant_value);
+                opt_stats.constant_propagation_count++;
+            }
+            if (next_inst && next_inst->arg2 && operands_equal(next_inst->arg2, var))
+            {
+                // 替换变量为常量
+                free_operand(next_inst->arg2);
+                next_inst->arg2 = new_operand_constant_int(constant_value);
+                opt_stats.constant_propagation_count++;
+            }
+        }
+
+        inst = inst->next;
+    }
+
+    // 第三步：冗余赋值消除
+    printf("Applying redundant assignment elimination...\n");
+    inst = code_head;
+    while (inst != NULL)
+    {
+        Instruction *next = inst->next;
+
+        // 查找 x := y 后紧跟 z := x 的模式
+        if (inst->op == OP_ASSIGN && next && next->op == OP_ASSIGN &&
+            operands_equal(next->arg1, inst->result))
+        {
+            // 将 z := x 改为 z := y
+            free_operand(next->arg1);
+            if (inst->arg1->type == OPERAND_CONSTANT)
+            {
+                next->arg1 = new_operand_constant_int(inst->arg1->u.int_value);
+            }
+            else if (inst->arg1->type == OPERAND_VARIABLE)
+            {
+                next->arg1 = new_operand_variable(inst->arg1->u.name);
+            }
+            else if (inst->arg1->type == OPERAND_TEMP)
+            {
+                next->arg1 = new_operand_temp();
+                next->arg1->u.temp_no = inst->arg1->u.temp_no;
+            }
+            opt_stats.redundant_assignment_count++;
+        }
+
+        inst = inst->next;
+    }
+
+    // 第四步：简化的死代码消除（删除指令）
+    printf("Applying dead code elimination...\n");
+    inst = code_head;
+    Instruction *prev = NULL;
+
+    while (inst != NULL)
+    {
+        bool should_remove = false;
+
+        // 检查是否为死代码（结果未被使用的赋值）
+        if (inst->result && inst->op == OP_ASSIGN)
+        {
+            // 检查结果是否被使用
+            bool is_used = false;
+            Instruction *check_inst = inst->next;
+            while (check_inst != NULL)
+            {
+                if ((check_inst->arg1 && operands_equal(check_inst->arg1, inst->result)) ||
+                    (check_inst->arg2 && operands_equal(check_inst->arg2, inst->result)))
+                {
+                    is_used = true;
+                    break;
+                }
+                // 如果在RETURN语句中使用
+                if (check_inst->op == OP_RETURN && check_inst->arg1 &&
+                    operands_equal(check_inst->arg1, inst->result))
+                {
+                    is_used = true;
+                    break;
+                }
+                check_inst = check_inst->next;
+            }
+
+            if (!is_used)
+            {
+                should_remove = true;
+            }
+        }
+        // 检查其他类型的死代码（算术运算结果未使用）
+        else if (inst->result && (inst->op == OP_ADD || inst->op == OP_SUB ||
+                                  inst->op == OP_MUL || inst->op == OP_DIV))
+        {
+            bool is_used = false;
+            Instruction *check_inst = inst->next;
+            while (check_inst != NULL)
+            {
+                if ((check_inst->arg1 && operands_equal(check_inst->arg1, inst->result)) ||
+                    (check_inst->arg2 && operands_equal(check_inst->arg2, inst->result)))
+                {
+                    is_used = true;
+                    break;
+                }
+                if (check_inst->op == OP_RETURN && check_inst->arg1 &&
+                    operands_equal(check_inst->arg1, inst->result))
+                {
+                    is_used = true;
+                    break;
+                }
+                check_inst = check_inst->next;
+            }
+
+            if (!is_used)
+            {
+                should_remove = true;
+            }
+        }
+
+        if (should_remove)
+        {
+            Instruction *to_remove = inst;
+            inst = inst->next;
+
+            // 从链表中删除
+            if (prev == NULL)
+            {
+                code_head = inst;
+            }
+            else
+            {
+                prev->next = inst;
+            }
+
+            if (to_remove == code_tail)
+            {
+                code_tail = prev;
+            }
+
+            free_instruction(to_remove);
+            opt_stats.dead_code_elimination_count++;
+        }
+        else
+        {
+            prev = inst;
+            inst = inst->next;
+        }
+    }
+
+    opt_stats.total_instructions_after = count_instructions();
+
+    printf("Optimization completed.\n");
+    print_optimization_stats();
+}
